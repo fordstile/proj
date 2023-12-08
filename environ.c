@@ -1,83 +1,98 @@
 #include "shell.h"
+
 /**
-* _myenv - it prints current environment
-* @infos: Struct containing arguments, used to maintain.
-*  const func prototype.
-* Return: Always 0
-*/
-int _myenv(info_t * infos)
-{
-print_list_str(infos->env);
-return (0);
-}
-/**
- * _mysetenv - Initialize a new env var
- * or modify existing one
- * @infos: Struct containing arguments, used to maintain.
- * const func prototype.
- * Return: Always 0
- */
-int _mysetenv(info_t *infos)
-{
-if (infos->argc != 3)
-{
-_eputs("Incorrect num of arguements\n");
-return (1);
-}
-if (_setenv(infos, infos->argv[1], infos->argv[2]))
-return (0);
-return (1);
-}
-/**
- * _getenv - gets value of an env var
- * @infos: Struct containing arguments, used to maintain.
- * @names: environ var name
+ * printCurrentEnvironment - Prints the current environment.
+ * @infos: Struct containing arguments, used to maintain const func prototype.
  *
- * Return: value
+ * Return: Always 0.
  */
-char *_getenv(info_t *infos, const char *names)
+int printCurrentEnvironment(info_t *infos)
 {
-list_t *node = infos->env;
-char *o;
-while (node)
-{
-o = starts_with(node->str, names);
-if (o && *o)
-return (o);
-node = node->next;
+	print_list_str(infos->env);
+	return (0);
 }
-return (NULL);
-}
+
 /**
- * populate_env_list - populate environ linked list
- * @info: Struct containing arguments, used to maintain.
- * const func prototype.
- * Return: Always (0)
+ * initializeOrModifyEnvVar - Initializes a new environment variable
+ * or modifies an existing one.
+ * @infos: Struct containing arguments, used to maintain const func prototype.
+ *
+ * Return: Always 0.
  */
-int populate_env_list(info_t *info)
+int initializeOrModifyEnvVar(info_t *infos)
 {
-list_t *node = NULL;
-size_t z;
-for (z = 0; environ[z]; z++)
-add_node_end(&node, environ[z], 0);
-info->env = node;
-return (0);
+	if (infos->argc != 3)
+	{
+		_eputs("Incorrect number of arguments\n");
+		return (1);
+	}
+
+	if (_setenv(infos, infos->argv[1], infos->argv[2]))
+		return (0);
+
+	return (1);
 }
+
 /**
- * _myunsetenv - Removes the env var
+ * getEnvVarValue - Gets the value of an environment variable.
  * @infos: Struct containing arguments, used to maintain.
- * const func prototype.
- * Return: Always (0)
+ * @names: Environment variable name.
+ *
+ * Return: Value of the environment variable.
  */
-int _myunsetenv(info_t *infos)
+char *getEnvVarValue(info_t *infos, const char *names)
 {
-int z;
-if (infos->argc == 1)
+	list_t *currentNode = infos->env;
+	char *position;
+
+	while (currentNode)
+	{
+		position = starts_with(currentNode->str, names);
+		if (position && *position)
+			return (position);
+		currentNode = currentNode->next;
+	}
+
+	return (NULL);
+}
+
+/**
+ * populateEnvList - Populates the environment linked list.
+ * @info: Struct containing arguments, used to maintain const func prototype.
+ *
+ * Return: Always 0.
+ */
+int populateEnvList(info_t *info)
 {
-_eputs("Too few arguements.\n");
-return (1);
+	list_t *node = NULL;
+	size_t index;
+
+	for (index = 0; environ[index]; index++)
+		add_node_end(&node, environ[index], 0);
+
+	info->env = node;
+	return (0);
 }
-for (z = 1; z <= infos->argc; z++)
-_unsetenv(infos, infos->argv[z]);
-return (0);
+
+/**
+ * removeEnvVar - Removes an environment variable.
+ * @infos: Struct containing arguments, used to maintain const func prototype.
+ *
+ * Return: Always 0.
+ */
+int removeEnvVar(info_t *infos)
+{
+	int index;
+
+	if (infos->argc == 1)
+	{
+		_eputs("Too few arguments.\n");
+		return (1);
+	}
+
+	for (index = 1; index <= infos->argc; index++)
+		_unsetenv(infos, infos->argv[index]);
+
+	return (0);
 }
+

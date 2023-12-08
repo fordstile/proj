@@ -1,77 +1,91 @@
 #include "shell.h"
+
 /**
- * _eputs - it prints input string
- * @stri: string to print
+ * _eputs - Prints input string to stderr.
+ * @str: String to print.
  *
- * Return: Nothing
+ * Return: Nothing.
  */
-void _eputs(char *stri)
+void _eputs(char *str)
 {
-int z = 0;
-if (!stri)
-return;
-while (stri[z] != '\0')
-{
-_eputchar(stri[z]);
-z++;
+	int i = 0;
+
+	if (!str)
+		return;
+
+	while (str[i] != '\0')
+	{
+		_eputchar(str[i]);
+		i++;
+	}
 }
-}
+
 /**
- * _putfd - write char c to given fd
- * @ch: char to print
- * @fd: filedescriptor to write
+ * _putfd - Writes char to the given file descriptor.
+ * @ch: Char to print.
+ * @fd: File descriptor to write.
  *
- * Return: 1 if success.
- * -1 if error and errno is set appropriately.
+ * Return: 1 if success. -1 if error, and errno is set appropriately.
  */
 int _putfd(char ch, int fd)
 {
-static int z;
-static char buffe[WRITE_BUF_SIZE];
-if (ch == BUF_FLUSH || z >= WRITE_BUF_SIZE)
-{
-write(fd, buffe, z);
-z = 0;
+	static int index;
+	static char buffer[WRITE_BUF_SIZE];
+
+	if (ch == BUF_FLUSH || index >= WRITE_BUF_SIZE)
+	{
+		write(fd, buffer, index);
+		index = 0;
+	}
+
+	if (ch != BUF_FLUSH)
+		buffer[index++] = ch;
+
+	return (1);
 }
-if (ch != BUF_FLUSH)
-buffe[z++] = ch;
-return (1);
-}
+
 /**
- * _putsfd - prints input string
- * @stri: string to print
- * @fd: filedescriptor to write
+ * _putsfd - Prints input string to the given file descriptor.
+ * @str: String to print.
+ * @fd: File descriptor to write.
  *
- * Return: number chars put
+ * Return: Number of characters written.
  */
-int _putsfd(char *stri, int fd)
+int _putsfd(char *str, int fd)
 {
-int z = 0;
-if (!stri)
-return (0);
-while (*stri)
-{
-z += _putfd(*stri++, fd);
+	int i = 0;
+
+	if (!str)
+		return (0);
+
+	while (*str)
+	{
+		i += _putfd(*str++, fd);
+	}
+
+	return (i);
 }
-return (z);
-}
+
 /**
- * _eputchar - writes char c to stderr
- * @ch: char to print
+ * _eputchar - Writes char to stderr.
+ * @ch: Char to print.
  *
- * Return: 1 if success.
- * -1 if error and errno is set appropriately.
+ * Return: 1 if success. -1 if error, and errno is set appropriately.
  */
 int _eputchar(char ch)
 {
-static int z;
-static char buffe[WRITE_BUF_SIZE];
-if (ch == BUF_FLUSH || z >= WRITE_BUF_SIZE)
-{
-write(2, buffe, z);
-z = 0;
+	static int index;
+	static char buffer[WRITE_BUF_SIZE];
+
+	if (ch == BUF_FLUSH || index >= WRITE_BUF_SIZE)
+	{
+		write(2, buffer, index);
+		index = 0;
+	}
+
+	if (ch != BUF_FLUSH)
+		buffer[index++] = ch;
+
+	return (1);
 }
-if (ch != BUF_FLUSH)
-buffe[z++] = ch;
-return (1);
-}
+
